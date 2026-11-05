@@ -1,145 +1,92 @@
 
-const postsContainer = document.getElementById("postsContainer");
+const postContainer = document.getElementById("postsContainer");
 
-// Fetch Posts API
-fetch("https://jsonplaceholder.typicode.com/posts")
-  .then((response) => response.json())
-  .then((posts) => {
+let allComments = [];
 
-    console.log("Posts:", posts);
+fetch("https://jsonplaceholder.typicode.com/comments")
+    .then((response) => response.json())
+    .then((comments) => {
+        allComments = comments;
 
-    // Fetch Comments API
-    return fetch("https://jsonplaceholder.typicode.com/comments")
-      .then((response) => response.json())
-      .then((comments) => {
-
-        console.log("Comments:", comments);
-
-        displayPosts(posts, comments);
-
-      });
-
-  })
-  .catch((error) => {
-    console.log("Error fetching data:", error);
-  });
-
-
-// Display Posts
-function displayPosts(posts, comments) {
-
-  postsContainer.innerHTML = "";
-
-  posts.forEach((post) => {
-
-    // Create Post Card
-    const postCard = document.createElement("section");
-
-    postCard.className =
-      "rounded-2xl bg-white p-6 shadow-sm mb-5";
-
-    // Create Post ID
-    const postId = document.createElement("span");
-
-    postId.className =
-      "rounded-lg bg-indigo-100 px-3 py-1 text-sm font-bold text-indigo-700";
-
-    postId.textContent = `Post #${post.id}`;
-
-    // Create User ID
-    const userId = document.createElement("span");
-
-    userId.className = "ml-3 text-sm text-slate-500";
-
-    userId.textContent = `User ID: ${post.userId}`;
-
-    // Create Title
-    const title = document.createElement("h3");
-
-    title.className =
-      "mt-4 text-xl font-bold capitalize text-slate-800";
-
-    title.textContent = post.title;
-
-    // Create Body
-    const body = document.createElement("p");
-
-    body.className = "mt-3 leading-7 text-slate-600";
-
-    body.textContent = post.body;
-
-    // Add Elements to Post Card
-    postCard.appendChild(postId);
-    postCard.appendChild(userId);
-    postCard.appendChild(title);
-    postCard.appendChild(body);
-    
-    
-    
-    // Match Comments with Post ID
-    const matchedComments = comments.filter((comment) => {
-      return comment.postId === post.id;
+        fetch("https://jsonplaceholder.typicode.com/posts")
+            .then((response) => response.json())
+            .then((posts) => {
+                displayPosts(posts);
+            });
+    })
+    .catch((error) => {
+        console.log("Err:", error);
     });
 
 
-    // Create Comments Heading
-    const commentsHeading = document.createElement("h4");
+function displayPosts(posts) {
 
-    commentsHeading.className =
-      "mt-5 font-bold text-indigo-700";
+    posts.forEach((post) => {
 
-    commentsHeading.textContent =
-      `Comments (${matchedComments.length})`;
+        const postComments = allComments.filter((comment) => {
+            return comment.postId === post.id;
+        });
 
+        const postCard = document.createElement("section");
+        postCard.className = "rounded-2xl bg-white p-6 shadow-sm";
 
-    // Display Matched Comments
-    matchedComments.forEach((comment) => {
+        const title = document.createElement("h3");
+        title.className = "font-bold text-2xl";
+        title.textContent = post.title;
 
-      const commentCard = document.createElement("div");
+        const body = document.createElement("p");
+        body.textContent = post.body;
 
-      commentCard.className =
-        "mt-3 rounded-lg bg-slate-100 p-4";
+        const commentCount = document.createElement("p");
+        commentCount.className = "text-blue-600 font-semibold mt-3";
+        commentCount.textContent = `${postComments.length} Comments`;
 
-      const commentName = document.createElement("h5");
+        const btn = document.createElement("button");
+        btn.className = "bg-blue-500 text-white px-4 py-2 rounded-lg mt-3";
+        btn.textContent = "View comments";
 
-      commentName.className = "font-semibold text-slate-800";
+        const commentContainer = document.createElement("div");
+        commentContainer.className = "hidden mt-4 space-y-3";
 
-      commentName.textContent = comment.name;
+        btn.addEventListener("click", () => {
 
-      const commentEmail = document.createElement("p");
+            commentContainer.classList.toggle("hidden");
 
-      commentEmail.className =
-        "mt-1 text-sm text-indigo-600";
+            if (commentContainer.classList.contains("hidden")) {
+                btn.textContent = "View comments";
+            } else {
+                btn.textContent = "Hide comments";
+            }
 
-      commentEmail.textContent = comment.email;
+        });
 
-      const commentBody = document.createElement("p");
+        postComments.forEach((comment) => {
 
-      commentBody.className =
-        "mt-2 text-sm leading-6 text-slate-600";
+            const commentBox = document.createElement("div");
+            commentBox.className = "bg-gray-100 p-3 rounded-lg";
 
-      commentBody.textContent = comment.body;
+            const commentName = document.createElement("h4");
+            commentName.className = "font-bold";
+            commentName.textContent = comment.name;
 
+            const commentBody = document.createElement("p");
+            commentBody.textContent = comment.body;
 
-      // Add Comment Elements
-      
-      // commentCard.appendChild(commentName);
-      // commentCard.appendChild(commentEmail);
-      commentCard.appendChild(commentBody);
+            commentBox.appendChild(commentName);
+            commentBox.appendChild(commentBody);
 
-      postCard.appendChild(commentCard);
-      
+            commentContainer.appendChild(commentBox);
+
+        });
+
+        postCard.appendChild(title);
+        postCard.appendChild(body);
+        postCard.appendChild(commentCount);
+        postCard.appendChild(btn);
+        postCard.appendChild(commentContainer);
+
+        postContainer.appendChild(postCard);
 
     });
-
-
-  postCard.appendChild(commentsHeading);
-
-    
-    // Add Post Card to Container
-    postsContainer.appendChild(postCard);
-    
-
-  });
 
 }
